@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath('lesson/task_2'))
+sys.path.append(os.path.abspath('..'))
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -29,5 +29,6 @@ language = 'UA'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 
-html_theme = 'nature'
+html_theme ='nature'# 'readthedocs' mkdocs? alabaster classic sphinxdoc scrolls agogo traditional haiku pyramid bizstyle
+# https://www.sphinx-doc.org/en/master/usage/theming.html 
 html_static_path = ['_static']

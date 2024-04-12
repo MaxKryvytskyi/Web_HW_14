@@ -4,7 +4,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from src.database.models import Note, Tag, User
-from src.schemas import NoteModel, NoteUpdate, NoteStatusUpdate
+from src.schemas.notes import NoteModel, NoteUpdate, NoteStatusUpdate
 
 
 async def get_notes(skip: int, limit: int, user: User, db: Session) -> List[Note]:
