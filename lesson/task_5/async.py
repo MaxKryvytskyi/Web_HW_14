@@ -22,6 +22,12 @@ class TestAsyncMethod(unittest.IsolatedAsyncioTestCase):
         sum_ = await async_sum(2, 2)
         self.assertEqual(add_, sum_)
 
+    async def test_sum(self):
+        """Sum function test"""
+        add_ = await async_add(2, 2)
+        sum_ = await async_sum(2, 2)
+        self.assertEqual(add_, sum_)
+
 
 if __name__ == '__main__':
     unittest.main()
