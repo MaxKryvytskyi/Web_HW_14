@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "web-hw-14"
+version = "0.1.0"
+package-mode = false
+description = ""
+authors = ["Max <maxkryvytskyiwork@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+alembic = "^1.13.0"
+sqlalchemy = "^2.0.23"
+asyncpg = "^0.29.0"
+uvicorn = "^0.24.0.post1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+pydantic = {extras = ["email"], version = "^2.5.2"}
+python-multipart = "^0.0.6"
+passlib = "^1.7.4"
+libgravatar = "^1.0.4"
+psycopg2 = "^2.9.9"
+bcrypt = "^4.0.1"
+fastapi-mail = "^1.4.1"
+django = "^4.2.1"
+pillow = "^10.2.0"
+mongoengine = "^0.27.0"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.3"
+lxml = "^5.1.0"
+python-decouple = "^3.8"
+redis-lru = "^0.1.2"
+django-environ = "^0.11.2"
+slowapi = "^0.1.9"
+cloudinary = "^1.39.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

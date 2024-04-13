@@ -1,0 +1,32 @@
+version: '1'
+
+services:
+  redis:
+      image: redis:alpine
+      ports:
+        - "${REDIS_PORT}:6379"
+  postgres1:
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT_F}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_F}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_F}
+      POSTGRES_DB: ${POSTGRES_DB_F}
+    # volumes:
+    #   - ./postgres_fastapi:/var/lib/postgresql/data
+
+  postgres2:
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT_D}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_D}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_D}
+      POSTGRES_DB: ${POSTGRES_DB_D}
+#     volumes:
+#       - ./postgres_django:/var/lib/postgresql/data
+
+# volumes:
+#   postgres_fastapi:
+#   postgres_django:

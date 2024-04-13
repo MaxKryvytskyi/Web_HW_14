@@ -1,0 +1,44 @@
+
+# Почтовый ящик
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM=
+MAIL_PORT=465
+MAIL_SERVER=smtp.meta.ua
+MAIL_FROM_NAME=Example email
+
+# database для FastAPI
+POSTGRES_DB_F=
+POSTGRES_USER_F=
+POSTGRES_PASSWORD_F=
+POSTGRES_HOST_F=localhost
+POSTGRES_PORT_F=5432
+
+SQLALCHEMY_DATABASE_URL_F=postgresql+psycopg2://:@localhost:5432/
+
+# database для Django
+POSTGRES_DB_D=
+POSTGRES_USER_D=
+POSTGRES_PASSWORD_D=
+POSTGRES_HOST_D=localhost
+POSTGRES_PORT_D=5433
+
+SQLALCHEMY_DATABASE_URL_D=postgresql+psycopg2://:@localhost:5433/
+
+
+
+# Шифрування tokens
+SECRET_KEY=secret_key
+ALGORITHM=HS256
+
+# database Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# шлях до статики Django
+STATIC_URL = E:/Git_Files/__Python_GOIT__/__Web_2_0__/Web_HW_13/Django/quotes/static/
+
+# данні для підключення до cloudinary
+cloudinary_name=
+cloudinary_api_key=
+cloudinary_api_secret=
