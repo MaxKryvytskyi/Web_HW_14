@@ -26,7 +26,7 @@ async def confirmed_email(email: str, db: Session) -> User:
 
 
 # test is ready
-async def update_avatar(email, url: str, db: Session) -> User:
+async def update_avatar(email: str, url: str, db: Session) -> User:
     user = await get_user_by_email(email, db)
     user.avatar = url
     db.commit()
@@ -56,9 +56,12 @@ async def get_user_by_username(username: str, db: Session=Depends(get_db)) -> Us
     return user
 
 
-
-async def remove_user(user: User, db: Session=Depends(get_db)) -> User:
-    ...
+# test is ready
+async def remove_user(email: str, db: Session) -> User:
+    user = await get_user_by_email(email, db)
+    db.delete(user)
+    db.commit()
+    return user
 
 
 
