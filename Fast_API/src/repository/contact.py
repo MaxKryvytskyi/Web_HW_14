@@ -12,6 +12,7 @@ import pickle
 
 
 async def create_contact(user_id: int, body: ContactSchema,  db: Session):
+    # contact = Contact(**body.model_dump())
     contact = Contact(
         first_name = body.first_name,
         last_name = body.last_name,
