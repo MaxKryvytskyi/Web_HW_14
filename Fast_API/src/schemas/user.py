@@ -14,6 +14,7 @@ class UserDb(BaseModel):
     email: EmailStr
     avatar: HttpUrl
     created_at: datetime
+    confirmed: bool
 
     class Config:
         from_attributes = True
