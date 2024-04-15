@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, date
 
 from src.database.models import Contact
 from src.schemas.contact import ContactUpdate, ContactSchema, ContactDataUpdate, ContactResponse
-from src.services.redis import redis_db as r
+from src.services.redis import r
 import pickle
 
 
@@ -31,7 +31,7 @@ async def create_contact(user_id: int, body: ContactSchema,  db: Session):
 # test is ready
 async def get_contacts(user_id: int, skip: int, limit: int, db: Session):
     contacts = r.get(str(user_id))
- 
+    print(contacts)
     print("1")
  
     if contacts:
