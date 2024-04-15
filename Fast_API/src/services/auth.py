@@ -10,8 +10,9 @@ from sqlalchemy.orm import Session
 
 from src.database.db import get_db
 from src.repository import users as repository_users
-from src.services.redis import redis_db as r
+from Fast_API.src.services.client_redis import ClientRedis
 
+r = ClientRedis()
 
 
 class Auth:
@@ -76,13 +77,13 @@ class Auth:
                 raise credentials_exception
         except JWTError as e:
             raise credentials_exception
-        user = r.get(str(email))
+        user = r.redis_get(str(email))
         if user is None:
             user = await repository_users.get_user_by_email(email, db)
             if user is None:
                 raise credentials_exception
-            r.set(str(email), pickle.dumps(user))
-            r.expire(str(email), 3600)
+            r.redis_set(str(email), pickle.dumps(user))
+            r.redis_expire(str(email), 3600)
             return user
         return pickle.loads(user)
 
