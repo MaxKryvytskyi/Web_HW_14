@@ -28,13 +28,23 @@ async def create_contact(user_id: int, body: ContactSchema,  db: Session):
 
 # test is ready
 async def get_contacts(user_id: int, skip: int, limit: int, db: Session):
+    print("10")
     contacts = redis_get(user_id)
- 
+    print("11")
+    print(contacts)
+    print("12")
     if contacts:
+        print("13")
         return contacts
+    print("14")
     contacts = db.query(Contact).filter(Contact.user_id==user_id).offset(skip).limit(limit).all()
+    print("15")
+    print(contacts)
+    print("16")
     redis_set(user_id, contacts)
+    print("17")
     redis_expire(user_id)
+    print("18")
     return contacts
 
 

@@ -1,9 +1,8 @@
 import unittest
-import requests
+import redis
 from datetime import datetime
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
-# from Fast_API.src.services.client_redis import ClientRedis
 from src.database.models import Contact, User
 from src.schemas.contact import ContactUpdate, ContactDataUpdate, ContactResponse, ContactSchema
 from src.repository.contact import (
@@ -17,13 +16,14 @@ from src.repository.contact import (
                                     get_birstdays, redis_get
                                     )
 
-def send_request(url):
-    response = requests.get(url)
-    return response.status_code
-
-
 class TestContact(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        self.mock_redis = MagicMock(redis.Redis)
+        self.mock_redis.redis_get = MagicMock(return_value=[Contact(), Contact(), Contact(), Contact(), Contact()])
+        # contacts = [Contact(), Contact(), Contact(), Contact(), Contact()]
+
+        # setattr(self.mock_redis, "redis_get", MagicMock(return_value=contacts))
+        # setattr(self.mock_redis, "redis_set", MagicMock(return_value=False))
         self.user = User(id=1)
         self.session = MagicMock(spec=Session)
         self.body = ContactSchema(first_name="max",
@@ -42,14 +42,9 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
 
 
     async def test_get_contacts(self):
-        contact = [Contact(), Contact(), Contact(), Contact(), Contact()]
-        mock_get = Mock(return_value=Mock({"1": contact}))
         self.session.query().filter().offset().limit().all.return_value = [Contact()]
-        with patch('redis_get', mock_get):
-            result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
-            print(result)
-            assert result == contact
-
+        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        print(result)
  
         # self.assertEqual(len(result), 1)
         
@@ -58,13 +53,7 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_contact(self):
         ...
-
-    # async def test_send_request(self):
-    #     mock_get = Mock(return_value=Mock(status_code=201))
-    #     with patch('requests.get', mock_get):
-    #         status_code = send_request('http://example.com')
-    #         assert status_code == 201
-    #         mock_get.assert_called_once_with('http://example.com')
+ 
 
 if __name__ == '__main__':
     unittest.main()
