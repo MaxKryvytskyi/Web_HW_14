@@ -1,3 +1,3 @@
 import redis
-
-redis_db = redis.Redis(host='localhost', port=6379, db=0)
+# host='localhost', port=6379, db=0
+redis_db = redis.Redis()

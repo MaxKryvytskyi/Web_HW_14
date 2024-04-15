@@ -10,7 +10,7 @@ import pickle
 
 
 
-
+# test is ready
 async def create_contact(user_id: int, body: ContactSchema,  db: Session):
     # contact = Contact(**body.model_dump())
     contact = Contact(
@@ -28,10 +28,16 @@ async def create_contact(user_id: int, body: ContactSchema,  db: Session):
     return contact
 
 
+# test is ready
 async def get_contacts(user_id: int, skip: int, limit: int, db: Session):
     contacts = r.get(str(user_id))
+ 
+    print("1")
+ 
     if contacts:
+        print("2")
         return pickle.loads(contacts)
+    print("3")
     contacts = db.query(Contact).filter(Contact.user_id==user_id).offset(skip).limit(limit).all()
     r.set(str(user_id), pickle.dumps(contacts))
     r.expire(str(user_id), 3600)

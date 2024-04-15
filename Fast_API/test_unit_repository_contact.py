@@ -1,4 +1,6 @@
 import unittest
+import redis
+import pickle
 from datetime import datetime
 from unittest.mock import MagicMock 
 from sqlalchemy.orm import Session
@@ -19,6 +21,7 @@ from src.repository.contact import (
 
 class TestContact(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        self.mock_redis = MagicMock(return_value=None)
         self.session = MagicMock(spec=Session)
         self.user = User(id=1)
         self.body = ContactSchema(first_name="max",
@@ -28,31 +31,31 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
                                 birthday=datetime(2000, 1, 1),
                                 data="Work")
         
-        ...
+
 
     async def test_create_contact(self):
         result = await create_contact(user_id=self.user.id, body=self.body, db=self.session)
         self.session.add.assert_called()
         self.session.commit.assert_called()
         self.session.refresh.assert_called()
-        print(result.birthday)
+        self.assertEqual(result.user_id, self.user.id)
 
 
-# async def create_contact(user_id: int, body: ContactSchema,  db: Session):
-#     # contact = Contact(**body.model_dump())
-#     contact = Contact(
-#         first_name = body.first_name,
-#         last_name = body.last_name,
-#         email = body.email,
-#         phone = body.phone,
-#         birthday = body.birthday,
-#         data = body.data,
-#         user_id = user_id
-#     )
-#     db.add(contact)
-#     db.commit()
-#     db.refresh(contact)
-#     return contact
+    async def test_get_contacts(self):
+        contacts = [Contact(), Contact(), Contact(), Contact()]
+        # self.mock_redis.get.return_value = pickle.dumps([Contact(), Contact(), Contact(), Contact()])
+        self.session.query().filter().offset().limit().all.return_value = contacts
+        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        print(result)
+        self.assertEqual(len(result), 3)
+        
+        # self.mock_redis.set.assert_called_once_with()
+        # self.mock_redis.expire.assert_called_once_with()
+
+    async def test_get_contact(self):
+        ...
+#     contacts = db.query(Contact).filter(Contact.user_id==user_id).offset(skip).limit(limit).all()
+#     return contacts
 
 
 
