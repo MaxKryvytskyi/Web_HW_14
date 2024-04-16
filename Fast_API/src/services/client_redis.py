@@ -2,26 +2,17 @@ import redis
 import pickle
 
 
-r = redis.Redis(host='localhost', port=6379, db=0)
+class ClientRedis:
 
-def redis_get(read):
-    print("1")
-    result = r.get(str(read))
-    print("2")
-    print(result)
-    print("3")
-    return pickle.loads(result) if result else result
+    r = redis.Redis(host='localhost', port=6379, db=0)
+    async def redis_get(self, read):
+        result = self.r.get(str(read))
+        return pickle.loads(result) if result else result
 
-def redis_set(read, write):
-    print("4")
-    result = r.set(str(read), pickle.dumps(write))
-    print("5")
-    print(result)
-    print("6")
+    async def redis_set(self, read, write):
+        self.r.set(str(read), pickle.dumps(write))
 
-def redis_expire(read, integer=10):
-    print("7")
-    result = r.expire(str(read), integer)
-    print("8")
-    print(result)
-    print("9")
+    async def redis_expire(self, read, integer=30):
+        self.r.expire(str(read), integer)
+
+client_redis = ClientRedis()

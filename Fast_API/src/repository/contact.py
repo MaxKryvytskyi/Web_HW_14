@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, date
 
 from src.database.models import Contact
 from src.schemas.contact import ContactUpdate, ContactSchema, ContactDataUpdate, ContactResponse
-from src.services.client_redis import redis_get, redis_set, redis_expire
+from src.services.client_redis import client_redis
 
 
 # test is ready
@@ -28,35 +28,24 @@ async def create_contact(user_id: int, body: ContactSchema,  db: Session):
 
 # test is ready
 async def get_contacts(user_id: int, skip: int, limit: int, db: Session):
-    print("10")
-    contacts = redis_get(user_id)
-    print("11")
-    print(contacts)
-    print("12")
+    contacts = client_redis.redis_get(user_id)
     if contacts:
-        print("13")
         return contacts
-    print("14")
     contacts = db.query(Contact).filter(Contact.user_id==user_id).offset(skip).limit(limit).all()
-    print("15")
-    print(contacts)
-    print("16")
-    redis_set(user_id, contacts)
-    print("17")
-    redis_expire(user_id)
-    print("18")
+    client_redis.redis_set(user_id, contacts)
+    client_redis.redis_expire(user_id)
     return contacts
 
 
 
-# async def get_contact(user_id: int, contact_id: int, db: Session):
-#     contact = r.get(str(user_id))
-#     if contact:
-#         return pickle.loads(contact)
-#     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
-#     r.set(str(user_id), pickle.dumps(contact))
-#     r.expire(str(user_id), 3600)
-#     return contact
+async def get_contact(user_id: int, contact_id: int, db: Session):
+    contacts = client_redis.redis_get(user_id)
+    if contact:
+        return contacts
+    contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
+    client_redis.redis_set(user_id, contacts)
+    client_redis.redis_expire(user_id)
+    return contact
 
 
 async def remove_contact(user_id: int, contact_id: int, db: Session):
