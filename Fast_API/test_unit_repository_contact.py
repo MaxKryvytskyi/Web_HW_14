@@ -1,6 +1,7 @@
 import unittest
 import fastapi
 import redis
+from sqlalchemy.orm import Query
 from datetime import datetime
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
@@ -205,6 +206,68 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
 
  
  
+    async def test_search_contacts(self):
+        user_id=1
+        first_name='max'
+        last_name=""
+        email=""
+        phone=""
+        contacts = [Contact(
+                id = 1,
+                first_name="max",
+                last_name="krivitskyh",
+                email="max.lol@ex.ua", 
+                phone="+380991235634", 
+                birthday=datetime(2000, 1, 1), 
+                data="Work",  
+                user_id = 1), 
+                    Contact(
+                id = 2,
+                first_name="artem",
+                last_name="grid",
+                email="grid.lol@ex.ua", 
+                phone="+380991235632", 
+                birthday=datetime(1991, 1, 1), 
+                data="Work",  
+                user_id = 1), 
+                     Contact(                
+                id = 3,
+                first_name="olena",
+                last_name="krivitskyh",
+                email="olena.lol@ex.ua", 
+                phone="+380991235631", 
+                birthday=datetime(2001, 1, 1), 
+                data="Family",  
+                user_id = 1)]
+        birthday=datetime(1999, 4, 18)
+        self.session.query.return_value.filter.return_value = None
+        result = await search_contacts(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone=phone, birthday=birthday, db=self.session)   
+        self.assertListEqual(result, [])
+        
+        self.session.query.return_value.filter.return_value = Query()
+        result = await search_contacts(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone=phone, birthday=birthday, db=self.session)   
+        self.assertListEqual(result, [])
+
+#     query = db.query(Contact).filter(and_(Contact.user_id==user_id))
+ 
+#     contacts = []
+#     if first_name:
+#         query1 = query.filter(Contact.first_name.ilike(f"%{first_name}%"))
+#         contacts.extend(query1.all())
+#     if last_name:
+#         query1 = query.filter(Contact.last_name.ilike(f"%{last_name}%"))
+#         contacts.extend(query1.all())
+#     if email:
+#         query1 = query.filter(Contact.email.ilike(f"%{email}%"))     
+#         contacts.extend(query1.all())
+#     if phone:
+#         query1 = query.filter(Contact.phone.ilike(f"%{phone}%"))       
+#         contacts.extend(query1.all())
+#     if birthday:
+#         query1 = query.filter(func.DATE(Contact.birthday) == birthday)
+#         contacts.extend(query1.all())
+ 
+    # return list(set(contacts))
 
 
 if __name__ == '__main__':

@@ -116,21 +116,22 @@ async def get_birstdays(user_id: int, skip: int, limit: int, db: Session) -> lis
 
 async def search_contacts(user_id: int, first_name: str, last_name: str, email: str, phone: str, birthday: date, db: Session):
     query = db.query(Contact).filter(and_(Contact.user_id==user_id))
- 
+    print(query)
+    print(type(query))
     contacts = []
-    if first_name:
+    if first_name and query is not None:
         query1 = query.filter(Contact.first_name.ilike(f"%{first_name}%"))
         contacts.extend(query1.all())
-    if last_name:
+    if last_name and query is not None:
         query1 = query.filter(Contact.last_name.ilike(f"%{last_name}%"))
         contacts.extend(query1.all())
-    if email:
+    if email and query is not None:
         query1 = query.filter(Contact.email.ilike(f"%{email}%"))     
         contacts.extend(query1.all())
-    if phone:
+    if phone and query is not None:
         query1 = query.filter(Contact.phone.ilike(f"%{phone}%"))       
         contacts.extend(query1.all())
-    if birthday:
+    if birthday and query is not None:
         query1 = query.filter(func.DATE(Contact.birthday) == birthday)
         contacts.extend(query1.all())
  
