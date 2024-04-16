@@ -10,7 +10,6 @@ from src.services.client_redis import client_redis
 
 # test is ready
 async def create_contact(user_id: int, body: ContactSchema,  db: Session):
-    # contact = Contact(**body.model_dump())
     contact = Contact(
         first_name = body.first_name,
         last_name = body.last_name,
@@ -37,13 +36,13 @@ async def get_contacts(user_id: int, skip: int, limit: int, db: Session):
     return contacts
 
 
-
+# test is ready
 async def get_contact(user_id: int, contact_id: int, db: Session):
-    contacts = client_redis.redis_get(user_id)
+    contact = client_redis.redis_get(user_id)
     if contact:
-        return contacts
+        return contact
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
-    client_redis.redis_set(user_id, contacts)
+    client_redis.redis_set(user_id, contact)
     client_redis.redis_expire(user_id)
     return contact
 
@@ -61,16 +60,14 @@ async def update_contact(user_id: int, contact_id: int, body: ContactUpdate, db:
     if contact:
         contact.first_name = body.first_name
         contact.last_name = body.last_name
-        user = db.query(Contact).filter(Contact.email==body.email).first()
+        # user = db.query(Contact).filter(Contact.email==body.email).first() не помню зачем он 
         
-        if user is None:
-            print(user)
-            contact.email = body.email
-        user = db.query(Contact).filter(Contact.phone==body.phone).first()
+        # if user is None:
+        contact.email = body.email
+        # user = db.query(Contact).filter(Contact.phone==body.phone).first() не помню зачем он 
 
-        if user is None:
-            print(user)
-            contact.phone = body.phone
+        # if user is None:
+        contact.phone = body.phone
         contact.birthday = body.birthday
         contact.data = body.data
         db.commit()
