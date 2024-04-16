@@ -47,6 +47,7 @@ async def get_contact(user_id: int, contact_id: int, db: Session):
     return contact
 
 
+# test is ready
 async def remove_contact(user_id: int, contact_id: int, db: Session):
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
     if contact:
@@ -55,6 +56,7 @@ async def remove_contact(user_id: int, contact_id: int, db: Session):
     return contact
 
 
+# test is ready
 async def update_contact(user_id: int, contact_id: int, body: ContactUpdate, db: Session):
     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
     if contact:
@@ -74,6 +76,7 @@ async def update_contact(user_id: int, contact_id: int, body: ContactUpdate, db:
     return contact
 
 
+# test is ready
 async def update_data_contact(user_id: int, contact_id: int, body: ContactDataUpdate, db: Session):
     contact = db.query(Contact).filter(and_(Contact.user_id==user_id, Contact.id==contact_id)).first()
     if contact:
@@ -85,7 +88,8 @@ async def update_data_contact(user_id: int, contact_id: int, body: ContactDataUp
     return contact
 
 
-async def get_birstdays(user_id: int, skip: int, limit: int, db: Session):
+# test is ready
+async def get_birstdays(user_id: int, skip: int, limit: int, db: Session) -> list[ContactResponse] | list:
     today = datetime.today()
     seven_days_later = today + timedelta(days=7)
     contact_birthdays = db.query(Contact).filter(and_(Contact.user_id==user_id,
@@ -93,7 +97,8 @@ async def get_birstdays(user_id: int, skip: int, limit: int, db: Session):
         start_date=today.strftime('%m-%d'), 
         end_date=seven_days_later.strftime('%m-%d'))).offset(skip).limit(limit).all()
     contact_list = []
-    
+    if not contact_birthdays:
+        return contact_list
     for contact in contact_birthdays:
         contact_response = ContactResponse(
             id=contact.id,
@@ -106,6 +111,7 @@ async def get_birstdays(user_id: int, skip: int, limit: int, db: Session):
             user_id=contact.user_id)
         contact_list.append(contact_response)
     return contact_list
+
 
 
 async def search_contacts(user_id: int, first_name: str, last_name: str, email: str, phone: str, birthday: date, db: Session):

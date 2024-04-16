@@ -12,7 +12,7 @@ class ClientRedis:
     async def redis_set(self, read, write):
         self.r.set(str(read), pickle.dumps(write))
 
-    async def redis_expire(self, read, integer=30):
+    async def redis_expire(self, read, integer=300):
         self.r.expire(str(read), integer)
 
 client_redis = ClientRedis()

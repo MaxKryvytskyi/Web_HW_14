@@ -1,4 +1,5 @@
 import unittest
+import fastapi
 import redis
 from datetime import datetime
 from unittest.mock import MagicMock
@@ -38,6 +39,7 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
 
     #
     async def test_get_contacts(self):
+        user_id=1
         contacts = [Contact(), Contact(), Contact(), Contact(), Contact()]
         contact = [Contact()]
         contact_none = []
@@ -45,38 +47,40 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         client_redis.redis_set = MagicMock(return_value=True)
         client_redis.redis_expire = MagicMock(return_value=True)
         self.session.query().filter().offset().limit().all.return_value = None
-        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        result = await get_contacts(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, contacts)
 
         client_redis.redis_get = MagicMock(return_value=contact)
         client_redis.redis_set = MagicMock(return_value=True)
         client_redis.redis_expire = MagicMock(return_value=True)
         self.session.query().filter().offset().limit().all.return_value = None
-        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        result = await get_contacts(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, contact)
 
         client_redis.redis_get = MagicMock(return_value=None)
         client_redis.redis_set = MagicMock(return_value=True)
         client_redis.redis_expire = MagicMock(return_value=True)
         self.session.query().filter().offset().limit().all.return_value = contact
-        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        result = await get_contacts(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, contact)
 
         client_redis.redis_get = MagicMock(return_value=None)
         client_redis.redis_set = MagicMock(return_value=True)
         client_redis.redis_expire = MagicMock(return_value=True)
         self.session.query().filter().offset().limit().all.return_value = contact_none
-        result = await get_contacts(user_id=self.user.id, skip=10, limit=100, db=self.session)
+        result = await get_contacts(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, contact_none)
 
     #
     async def test_get_contact(self):
+        user_id=1
+        contact_id=1
         contact = Contact()
         client_redis.redis_get = MagicMock(return_value=contact)
         client_redis.redis_set = MagicMock(return_value=True)
         client_redis.redis_expire = MagicMock(return_value=True)
         self.session.query.return_value.filter.return_value.first.return_value = None
-        result = await get_contact(user_id=self.user.id, contact_id=1, db=self.session)
+        result = await get_contact(user_id=user_id, contact_id=contact_id, db=self.session)
         self.assertEqual(result, contact)  
 
         contact = Contact()
@@ -94,11 +98,11 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         result = await get_contact(user_id=self.user.id, contact_id=1, db=self.session)
         self.assertIsNone(result)   
  
-    
+    #
     async def test_update_contact(self):
         contact_id=1
         user_id=1
-        contact = Contact(id=1)
+        contact = Contact(id=contact_id)
        
         body = ContactUpdate(first_name="max",
                              last_name="krivitskyh",
@@ -121,24 +125,87 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result)
         self.assertIsNone(self.session.commit.assert_called())
 
+    #
+    async def test_remove_contact(self):
+        user_id=1
+        contact_id=1
+        contact = Contact(id=contact_id)
+        self.session.query.return_value.filter.return_value.first.return_value = contact
+        result = await remove_contact(user_id=user_id, contact_id=contact_id, db=self.session)
+        self.session.delete.assert_called()
+        self.session.commit.assert_called()
+        self.assertEqual(result, contact)
 
-# async def update_contact(user_id: int, contact_id: int, body: ContactUpdate, db: Session):
-#     contact = db.query(Contact).filter(and_(Contact.id==contact_id, Contact.user_id==user_id)).first()
-#     if contact:
-#         contact.first_name = body.first_name
-#         contact.last_name = body.last_name
-#         user = db.query(Contact).filter(Contact.email==body.email).first()
-        
-#         if user is None:
-#             contact.email = body.email
-#         user = db.query(Contact).filter(Contact.phone==body.phone).first()
+        self.session.query.return_value.filter.return_value.first.return_value = None
+        result = await remove_contact(user_id=user_id, contact_id=contact_id, db=self.session)
+        self.assertIsNone(self.session.delete.assert_called())
+        self.assertIsNone(self.session.commit.assert_called())
+        self.assertIsNone(result)
 
-#         if user is None:
-#             contact.phone = body.phone
-#         contact.birthday = body.birthday
-#         contact.data = body.data
-#         db.commit()
-#     return contact
+    #
+    async def test_update_data_contact(self):
+        user_id=1
+        contact_id=1
+        body = ContactDataUpdate(data="Test_update_data_contact")
+        contact = Contact(id=contact_id)
+        self.session.query.return_value.filter.return_value.first.return_value = contact
+        result = await update_data_contact(user_id=user_id, contact_id=contact_id, body=body, db=self.session)   
+        self.session.commit.assert_called()
+        self.assertEqual(result.data, body.data)
+
+        self.session.query.return_value.filter.return_value.first.return_value = None
+        result = await update_data_contact(user_id=user_id, contact_id=contact_id, body=body, db=self.session)   
+        self.assertIsNone(self.session.commit.assert_called())
+        self.assertIsNone(result)
+
+        contact = Contact(id=contact_id, data="Test_update_data_contact")
+        self.session.query.return_value.filter.return_value.first.return_value = contact
+        with self.assertRaises(fastapi.exceptions.HTTPException):
+            result = await update_data_contact(user_id=user_id, contact_id=contact_id, body=body, db=self.session)   
+        self.assertIsNone(self.session.commit.assert_called())
+        self.assertIsNone(result)
+
+    #
+    async def test_get_birstdays(self):
+        user_id = 1
+        contacts = [Contact(
+                id = 1,
+                first_name="max",
+                last_name="krivitskyh",
+                email="max.lol@ex.ua", 
+                phone="+380991235634", 
+                birthday=datetime(2000, 1, 1), 
+                data="Work",  
+                user_id = 1), 
+                    Contact(
+                id = 2,
+                first_name="max1",
+                last_name="krivitskyh1",
+                email="max1.lol@ex.ua", 
+                phone="+380991235632", 
+                birthday=datetime(1991, 1, 1), 
+                data="Work1",  
+                user_id = 1), 
+                     Contact(                
+                id = 3,
+                first_name="max2",
+                last_name="krivitskyh2",
+                email="max2.lol@ex.ua", 
+                phone="+380991235631", 
+                birthday=datetime(2001, 1, 1), 
+                data="Work2",  
+                user_id = 1)]
+        self.session.query.return_value.filter.return_value.offset.return_value.limit.return_value.all.return_value = contacts
+        result = await get_birstdays(user_id=user_id, skip=0, limit=100, db=self.session)
+        self.assertNotEqual(result, contacts)
+
+        self.session.query.return_value.filter.return_value.offset.return_value.limit.return_value.all.return_value = None
+        result = await get_birstdays(user_id=user_id, skip=0, limit=100, db=self.session)
+        self.assertEqual(result, [])
+
+ 
+ 
+
 
 if __name__ == '__main__':
     unittest.main()
