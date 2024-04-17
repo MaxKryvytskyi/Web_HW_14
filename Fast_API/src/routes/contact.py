@@ -9,6 +9,7 @@ from src.repository import contact as repository_contact
 from src.services.auth import auth_service
 from src.services.limiter import limiter
 
+
 router = APIRouter(prefix='/contacts', tags=['contacts'])
 
 
@@ -18,6 +19,7 @@ router = APIRouter(prefix='/contacts', tags=['contacts'])
 async def create_contact(request: Request, body: ContactSchema, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     user_id = current_user.id
     return await repository_contact.create_contact(user_id, body, db)
+
 
 
 @router.get("/search", response_model=list[ContactResponse])
@@ -38,6 +40,7 @@ async def search_contacts(request: Request,
     return contacts
 
 
+
 @router.get("/birstdays/all", response_model=list[ContactResponse])
 @limiter.limit("10/minute")
 async def get_birstdays(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
@@ -48,12 +51,14 @@ async def get_birstdays(request: Request, skip: int = 0, limit: int = 100, db: S
     return contacts
 
 
+
 @router.get("/", response_model=list[ContactResponse])
 @limiter.limit("10/minute")
 async def read_contacts(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     user_id = current_user.id
     contacts = await repository_contact.get_contacts(user_id, skip, limit, db)
     return contacts
+
 
 
 @router.get("/{contact_id}", response_model=ContactResponse)
@@ -66,6 +71,7 @@ async def read_contact(request: Request, contact_id: int, db: Session = Depends(
     return contact
 
 
+
 @router.delete("/{contact_id}", response_model=ContactResponse)
 @limiter.limit("10/minute")
 async def remove_contact(request: Request, contact_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
@@ -76,6 +82,7 @@ async def remove_contact(request: Request, contact_id: int, db: Session = Depend
     return contact
 
 
+
 @router.put("/{contact_id}", response_model=ContactResponse)
 @limiter.limit("10/minute")
 async def update_contact(request: Request, contact_id: int, body: ContactUpdate, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
@@ -84,6 +91,7 @@ async def update_contact(request: Request, contact_id: int, body: ContactUpdate,
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
     return contact
+
 
 
 @router.patch("/{contact_id}", response_model=ContactResponse)

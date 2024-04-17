@@ -11,13 +11,20 @@ from src.services.auth import auth_service
 from src.schemas.user import UserDb
 from src.services.limiter import limiter
 
+
+
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+
 
 
 @router.get("/me", response_model=UserDb)
 @limiter.limit("1/minute")
 async def read_users_me(request: Request, current_user: User = Depends(auth_service.get_current_user)):
     return current_user
+
+
 
 
 @router.patch('/avatar', response_model=UserDb)

@@ -205,13 +205,13 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, [])
 
  
- 
+    #
     async def test_search_contacts(self):
         user_id=1
         first_name='max'
-        last_name=""
-        email=""
-        phone=""
+        last_name=None
+        email=None
+        phone=None
         contacts = [Contact(
                 id = 1,
                 first_name="max",
@@ -243,32 +243,14 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.session.query.return_value.filter.return_value = None
         result = await search_contacts(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone=phone, birthday=birthday, db=self.session)   
         self.assertListEqual(result, [])
-        
-        self.session.query.return_value.filter.return_value = Query()
+
+        query_mock = MagicMock()
+        query_mock.filter.return_value = query_mock
+        query_mock.ilike.return_value = query_mock
+        query_mock.all.return_value = contacts
+        self.session.query.return_value = query_mock
         result = await search_contacts(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone=phone, birthday=birthday, db=self.session)   
-        self.assertListEqual(result, [])
-
-#     query = db.query(Contact).filter(and_(Contact.user_id==user_id))
- 
-#     contacts = []
-#     if first_name:
-#         query1 = query.filter(Contact.first_name.ilike(f"%{first_name}%"))
-#         contacts.extend(query1.all())
-#     if last_name:
-#         query1 = query.filter(Contact.last_name.ilike(f"%{last_name}%"))
-#         contacts.extend(query1.all())
-#     if email:
-#         query1 = query.filter(Contact.email.ilike(f"%{email}%"))     
-#         contacts.extend(query1.all())
-#     if phone:
-#         query1 = query.filter(Contact.phone.ilike(f"%{phone}%"))       
-#         contacts.extend(query1.all())
-#     if birthday:
-#         query1 = query.filter(func.DATE(Contact.birthday) == birthday)
-#         contacts.extend(query1.all())
- 
-    # return list(set(contacts))
-
+        self.assertEqual(len(result), len(contacts))
 
 if __name__ == '__main__':
     unittest.main()
