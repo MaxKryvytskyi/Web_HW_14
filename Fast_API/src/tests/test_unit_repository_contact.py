@@ -30,7 +30,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
                                 birthday=datetime(2000, 1, 1),
                                 data="Work")
     
-    #
     async def test_create_contact(self):
         result = await create_contact(user_id=self.user.id, body=self.body, db=self.session)
         self.session.add.assert_called()
@@ -38,7 +37,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.session.refresh.assert_called()
         self.assertEqual(result.user_id, self.user.id)
 
-    #
     async def test_get_contacts(self):
         user_id=1
         contacts = [Contact(), Contact(), Contact(), Contact(), Contact()]
@@ -72,7 +70,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         result = await get_contacts(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, contact_none)
 
-    #
     async def test_get_contact(self):
         user_id=1
         contact_id=1
@@ -99,7 +96,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         result = await get_contact(user_id=self.user.id, contact_id=1, db=self.session)
         self.assertIsNone(result)   
  
-    #
     async def test_update_contact(self):
         contact_id=1
         user_id=1
@@ -126,7 +122,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result)
         self.assertIsNone(self.session.commit.assert_called())
 
-    #
     async def test_remove_contact(self):
         user_id=1
         contact_id=1
@@ -143,7 +138,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.session.commit.assert_called())
         self.assertIsNone(result)
 
-    #
     async def test_update_data_contact(self):
         user_id=1
         contact_id=1
@@ -166,7 +160,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.session.commit.assert_called())
         self.assertIsNone(result)
 
-    #
     async def test_get_birstdays(self):
         user_id = 1
         contacts = [Contact(
@@ -204,8 +197,6 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         result = await get_birstdays(user_id=user_id, skip=0, limit=100, db=self.session)
         self.assertEqual(result, [])
 
- 
-    #
     async def test_search_contacts(self):
         user_id=1
         first_name='max'
