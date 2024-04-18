@@ -24,6 +24,17 @@ conf = ConnectionConfig(
 
 
 async def send_email(email: EmailStr, username: str, host: str):
+    """
+    Sends a confirmation email to the specified email address.
+
+    Args:
+        email (EmailStr): The recipient's email address.
+        username (str): The username associated with the email address.
+        host (str): The host URL for the confirmation link.
+
+    Raises:
+        ConnectionErrors: If there is an error in establishing a connection for sending the email.
+    """
     try:
         token_verification = auth_service.create_email_token({"sub": email})
         message = MessageSchema(
@@ -39,18 +50,32 @@ async def send_email(email: EmailStr, username: str, host: str):
         print(err)
 
 
-async def send_resets_password(email: EmailStr, username: str, host: str):
+async def send_resets_password(email: EmailStr, username: str, host: str) -> dict:
+    """
+    Sends an email for resetting the password to the specified email address.
+
+    Args:
+        email (EmailStr): The recipient's email address.
+        username (str): The username associated with the email address.
+        host (str): The host URL for the reset password link.
+
+    Returns:
+        dict: A dictionary containing a success message indicating that the email has been sent successfully.
+
+    Raises:
+        HTTPException: If there is an error in sending the email, a 500 Internal Server Error with a detailed error message is raised.
+    """
     try:
         token_reset_password = auth_service.create_email_reset_password_token({"sub": email})
-        # message = MessageSchema(
-        #     subject="Confirm reset password",
-        #     recipients=[email],
-        #     template_body={"host": host, "username": username, "token": token_reset_password},
-        #     subtype=MessageType.html
-        # )
+        message = MessageSchema(
+            subject="Confirm reset password",
+            recipients=[email],
+            template_body={"host": host, "username": username, "token": token_reset_password},
+            subtype=MessageType.html
+        )
 
-        # fm = FastMail(conf)
-        # await fm.send_message(message, template_name="password_reset_email.html")
+        fm = FastMail(conf)
+        await fm.send_message(message, template_name="password_reset_email.html")
     except ConnectionErrors as err:
         raise HTTPException(status_code=500, detail=f"Failed to send an email: {str(err)}")
     return {"message": "Email has been sent successfully!"}
