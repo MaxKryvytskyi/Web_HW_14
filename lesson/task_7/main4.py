@@ -28,4 +28,5 @@ def test_send_request1(mocker):
     mock_get.return_value.status_code = 201
     status_code = send_request1('http://example1.com')
     assert status_code == 201
+    
     mock_get.assert_called_once_with('http://example1.com')
