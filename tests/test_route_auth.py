@@ -110,3 +110,6 @@ def test_login_wrong_username(client, user):
 
 
 
+
+def test_():
+    pass
