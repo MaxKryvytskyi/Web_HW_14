@@ -10,11 +10,12 @@ from src.services.auth import auth_service
 from src.services.limiter import limiter
 from src.services.email import send_email, send_resets_password
 from src.database.models import User
+from src.services.logger import logger
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 get_refresh_token = HTTPBearer()
 
-
+#
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("10/minute")
 async def signup(request: Request, background_tasks: BackgroundTasks, body: UserSchema, db: Session = Depends(get_db)) -> User | HTTPException:
@@ -42,10 +43,10 @@ async def signup(request: Request, background_tasks: BackgroundTasks, body: User
     background_tasks.add_task(send_email, new_user.email, new_user.username, request.base_url)
     return new_user
 
-
-@router.post("/login",  response_model=TokenModel, status_code=status.HTTP_201_CREATED)
+#
+@router.post("/login",  response_model=TokenModel, status_code=status.HTTP_200_OK)
 @limiter.limit("10/minute")
-async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict | HTTPException:
+async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict | HTTPException: 
     """
     Logins in a user.
 
@@ -68,7 +69,6 @@ async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), d
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
 
- 
     access_token = await auth_service.create_access_token(data={"sub": user.email})
     refresh_token = await auth_service.create_refresh_token(data={"sub": user.email})
     await repository_users.update_token(user, refresh_token, db)
@@ -78,7 +78,7 @@ async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), d
 @router.get('/refresh_token',  response_model=TokenModel)
 @limiter.limit("10/minute")
 async def refresh_token(request: Request, credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
-                        db: Session = Depends(get_db)) -> dict | HTTPException:
+                        db: Session = Depends(get_db)): # -> dict | HTTPException
     """
     Refreshes the access token using the refresh token.
 
@@ -106,7 +106,7 @@ async def refresh_token(request: Request, credentials: HTTPAuthorizationCredenti
 
 @router.post('/reset_password')
 @limiter.limit("10/minute")
-async def reset_password(request: Request, body: RequestEmail, background_tasks: BackgroundTasks, db: Session = Depends(get_db)) -> dict | HTTPException:
+async def reset_password(request: Request, body: RequestEmail, background_tasks: BackgroundTasks, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Initiates the password reset process.
 
@@ -130,7 +130,7 @@ async def reset_password(request: Request, body: RequestEmail, background_tasks:
 
 @router.post('/reset_password/{token}')
 @limiter.limit("10/minute")
-async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)) -> dict | HTTPException:
+async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Resets the user's password using the reset token.
 
@@ -156,7 +156,7 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
 
 @router.get('/confirmed_email/{token}')
 @limiter.limit("1/minute")
-async def confirmed_email(request: Request, token: str, db: Session = Depends(get_db)) -> dict | HTTPException:
+async def confirmed_email(request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Confirms the user's email using the verification token.
 
@@ -182,7 +182,7 @@ async def confirmed_email(request: Request, token: str, db: Session = Depends(ge
 @router.post('/request_email')
 @limiter.limit("1/minute")
 async def request_email(request: Request, body: RequestEmail, background_tasks: BackgroundTasks,
-                        db: Session = Depends(get_db)) -> dict:
+                        db: Session = Depends(get_db)): #  -> dict
     """
     Endpoint to request email confirmation.
 

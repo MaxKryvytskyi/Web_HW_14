@@ -6,7 +6,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.database.models import Contact, User
-from src.schemas.contact import ContactUpdate, ContactDataUpdate, ContactResponse, ContactSchema
+from src.schemas.contact import ContactUpdate, ContactDataUpdate, ContactSchema
 from src.services.client_redis import client_redis 
 from src.repository.contact import (
                                     create_contact, 

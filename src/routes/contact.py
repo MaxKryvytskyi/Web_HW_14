@@ -68,7 +68,7 @@ async def search_contacts(request: Request,
     return contacts
 
 
-@router.get("/birstdays/all", response_model=list[ContactResponse])
+@router.get("/birstdays", response_model=list[ContactResponse])
 @limiter.limit("10/minute")
 async def get_birstdays(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), 
         current_user: User = Depends(auth_service.get_current_user)) -> Contact | HTTPException:
@@ -183,7 +183,6 @@ async def update_contact(request: Request, contact_id: int, body: ContactUpdate,
     if contact is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
     return contact
-
 
 
 @router.patch("/{contact_id}", response_model=ContactResponse)

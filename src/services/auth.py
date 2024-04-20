@@ -1,4 +1,6 @@
-import pickle
+import cloudinary
+import cloudinary.uploader
+from decouple import config
 from typing import Optional
 from decouple import config
 from jose import JWTError, jwt
@@ -12,7 +14,7 @@ from src.database.db import get_db
 from src.database.models import User
 from src.repository import users as repository_users
 from src.services.client_redis import client_redis
-
+from src.services.logger import logger
 
 
 class Auth:
@@ -149,7 +151,7 @@ class Auth:
             client_redis.redis_set(email, user)
             client_redis.redis_expire(email)
             return user
-        return pickle.loads(user)
+        return user
 
 
     def create_email_token(self, data: dict) -> str:
@@ -205,5 +207,17 @@ class Auth:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                                 detail="Invalid token for email verification")
+        
+    async def cloud_inary(file, current_user):
+        cloudinary.config(
+            cloud_name=config("cloudinary_name"), 
+            api_key=config("cloudinary_api_key"),
+            api_secret=config("cloudinary_api_secret"),
+            secure=True
+        )
+
+        r = cloudinary.uploader.upload(file.file, public_id=f'NotesApp/{current_user.username}', overwrite=True)
+        return cloudinary.CloudinaryImage(f'NotesApp/{current_user.username}')\
+                            .build_url(width=250, height=250, crop='fill', version=r.get('version'))
 
 auth_service = Auth()

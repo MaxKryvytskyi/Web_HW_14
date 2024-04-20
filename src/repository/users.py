@@ -83,7 +83,7 @@ async def update_token(user: User, token: str | None, db: Session) -> User:
 
 
 # test is ready
-async def get_user_by_email(email: str, db: Session=Depends(get_db)) -> User:
+async def get_user_by_email(email: str, db: Session=Depends(get_db)) -> User | None:
     """
     Retrieves a user by their email address.
 
@@ -101,7 +101,7 @@ async def get_user_by_email(email: str, db: Session=Depends(get_db)) -> User:
 
 
 # test is ready
-async def get_user_by_username(username: str, db: Session=Depends(get_db)) -> User:
+async def get_user_by_username(username: str, db: Session=Depends(get_db)) -> User | None:
     """
     Retrieves a user by their username.
 
