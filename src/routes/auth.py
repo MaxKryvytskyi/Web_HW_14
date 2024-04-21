@@ -78,7 +78,7 @@ async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), d
 @router.get('/refresh_token',  response_model=TokenModel)
 @limiter.limit("10/minute")
 async def refresh_token(request: Request, credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
-                        db: Session = Depends(get_db)): # -> dict | HTTPException
+                        db: Session = Depends(get_db)) -> dict | HTTPException:
     """
     Refreshes the access token using the refresh token.
 
@@ -127,12 +127,10 @@ async def reset_password(request: Request, body: RequestEmail, background_tasks:
         background_tasks.add_task(send_resets_password, user.email, user.username, request.base_url)
     return {"message": "Check your email for confirmation."}
 
-
+#
 @router.post('/reset_password/{token}')
 @limiter.limit("10/minute")
 async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
-    logger.critical(body)
-    logger.critical(token)
     """
     Resets the user's password using the reset token.
 
@@ -147,7 +145,6 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
         or an HTTPException with a status code and detail message if there's a reset password error.
     """
     email = await auth_service.get_email_from_token(token)
-    logger.critical(email)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reset password error")
@@ -155,6 +152,39 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
         user.password = auth_service.get_password_hash(body.new_password)
         db.commit()
         return {"message": "Password has been changed"}
+
+
+@router.post('/request_email')
+@limiter.limit("1/minute")
+async def request_email(request: Request, body: RequestEmail, background_tasks: BackgroundTasks,
+                        db: Session = Depends(get_db)): #  -> dict
+    logger.critical(body)
+
+    """
+    Endpoint to request email confirmation.
+
+    This endpoint allows users to request email confirmation. If the email is already confirmed,
+    it returns a message indicating that. If the email is not confirmed, it sends a confirmation email.
+    
+    Args:
+        request (Request): The request object.
+        body (RequestEmail): The request body containing the email.
+        background_tasks (BackgroundTasks): Background tasks to be executed.
+        db (Session): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        dict: A message indicating the outcome of the request.
+    """
+
+    user = await repository_users.get_user_by_email(body.email, db)
+
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is emails, was not found.")
+    if user.confirmed:
+        return {"message": "Your email is already confirmed"}
+    if user:
+        background_tasks.add_task(send_email, user.email, user.username, request.base_url)
+    return {"message": "Check your email for confirmation."}
 
 
 @router.get('/confirmed_email/{token}')
@@ -182,31 +212,5 @@ async def confirmed_email(request: Request, token: str, db: Session = Depends(ge
     return {"message": "Email confirmed"}
 
 
-@router.post('/request_email')
-@limiter.limit("1/minute")
-async def request_email(request: Request, body: RequestEmail, background_tasks: BackgroundTasks,
-                        db: Session = Depends(get_db)): #  -> dict
-    """
-    Endpoint to request email confirmation.
 
-    This endpoint allows users to request email confirmation. If the email is already confirmed,
-    it returns a message indicating that. If the email is not confirmed, it sends a confirmation email.
-    
-    Args:
-        request (Request): The request object.
-        body (RequestEmail): The request body containing the email.
-        background_tasks (BackgroundTasks): Background tasks to be executed.
-        db (Session): The database session. Defaults to Depends(get_db).
-
-    Returns:
-        dict: A message indicating the outcome of the request.
-    """
-
-    user = await repository_users.get_user_by_email(body.email, db)
-
-    if user.confirmed:
-        return {"message": "Your email is already confirmed"}
-    if user:
-        background_tasks.add_task(send_email, user.email, user.username, request.base_url)
-    return {"message": "Check your email for confirmation."}
 

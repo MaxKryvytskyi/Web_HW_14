@@ -152,10 +152,6 @@ def test_reset_password_incorrect_type_email(client):
         json={"email": None})
     assert response.status_code == 422, "Bad Request"
 
-
-
-
-
 def test_reset_password_token(client, user, session):
     users = session.query(User).filter(User.email==user["email"]).first()
     old_password = users.password
@@ -163,35 +159,52 @@ def test_reset_password_token(client, user, session):
     response = client.post(
         f"/api/auth/reset_password/{token_reset_password}",
         json={"new_password": user["new_password"]})
-    logger.critical(response)
-    assert response.status_code == 200, response.text
+    assert response.status_code == 200, "OK"
     data = response.json()
     users = session.query(User).filter(User.email==user["email"]).first()
     assert users.password != old_password
     assert data["message"] == "Password has been changed"
 
+def test_reset_password_token_incorrect_email(client, user):
+    token_reset_password = auth_service.create_email_reset_password_token({"sub": "deadpool1@example.com"})
+    response = client.post(
+        f"/api/auth/reset_password/{token_reset_password}",
+        json={"new_password": user["new_password"]})
+    assert response.status_code == 400, "Bad Request"
+    data = response.json()
+    assert data["detail"] == "Reset password error"
 
-# @router.post('/reset_password/{token}')
-# @limiter.limit("10/minute")
-# async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
-#     """
-#     Resets the user's password using the reset token.
+def test_reset_password_token_incorrect_token(client, user):
+    token_reset_password = "incorrect token"
+    response = client.post(
+        f"/api/auth/reset_password/{token_reset_password}",
+        json={"new_password": user["new_password"]})
+    assert response.status_code == 422, "Unprocessable Entity"
+    data = response.json()
+    assert data["detail"] == "Invalid token for email verification"
 
-#     Args:
-#         body (RequestUserNewPassword): The request body containing the new password.
-#         request (Request): The request object.
-#         token (str): The reset token.
-#         db (Sessionl): The database session. Defaults to Depends(get_db).
+def test_request_email(client, user):
+    response = client.post(
+        "/api/auth/request_email",
+        json={"email": user["email"]})
+    logger.critical(response)
+    assert response.status_code == 200, "OK"
+    data = response.json()
+    assert data["message"] == "Your email is already confirmed"
 
-#     Returns:
-#         Dict, HTTPException]: A dictionary with a success message if the password reset is successful,
-#         or an HTTPException with a status code and detail message if there's a reset password error.
-#     """
-#     email = await auth_service.get_email_from_token(token)
-#     user = await repository_users.get_user_by_email(email, db)
-#     if user is None:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reset password error")
+def test_request_email_incorrect_email(client, user):
+    response = client.post(
+        "/api/auth/request_email",
+        json={"email": user["email"]})
+    logger.critical(response)
+    assert response.status_code == 400, "Bad Request"
+    data = response.json()
+    assert data["detail"] == "User is emails, was not found."
+
+#     user = await repository_users.get_user_by_email(body.email, db)
+
+#     if user.confirmed:
+#         return {"message": "Your email is already confirmed"}
 #     if user:
-#         user.password = auth_service.get_password_hash(body.new_password)
-#         db.commit()
-#         return {"message": "Password has been changed"}
+#         background_tasks.add_task(send_email, user.email, user.username, request.base_url)
+#     return {"message": "Check your email for confirmation."}
