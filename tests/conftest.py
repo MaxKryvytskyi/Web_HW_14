@@ -1,4 +1,6 @@
 import pytest
+from unittest.mock import MagicMock 
+from src.database.models import User
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -48,3 +50,28 @@ def client(session):
 @pytest.fixture(scope="module")
 def user():
     return {"username": "deadpool", "email": "deadpool@example.com", "password": "123456789", "new_password": "12345678910"}
+
+
+@pytest.fixture()
+def token(client, user, session, monkeypatch):
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("src.services.email.send_email", mock_send_email)
+    mock_send_resets_password = MagicMock(return_value={"message": "Email has been sent successfully!"})
+    mock_send_resets_password.setattr("src.services.email.send_resets_password", mock_send_resets_password)
+    mock_redis = MagicMock(return_value=None)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_get", mock_redis)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_set", mock_redis)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_expire", mock_redis)
+    
+
+
+    client.post("/api/auth/signup", json=user)
+    current_user: User = session.query(User).filter(User.email == user.get('email')).first()
+    current_user.confirmed = True
+    session.commit()
+    response = client.post(
+        "/api/auth/login",
+        data={"username": user.get('email'), "password": user.get('password')},
+    )
+    data = response.json()
+    return data["access_token"]
