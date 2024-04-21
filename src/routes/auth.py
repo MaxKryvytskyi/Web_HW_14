@@ -153,7 +153,7 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
         db.commit()
         return {"message": "Password has been changed"}
 
-
+#
 @router.post('/request_email')
 @limiter.limit("10/minute")
 async def request_email(request: Request, body: RequestEmail, background_tasks: BackgroundTasks,
@@ -184,12 +184,10 @@ async def request_email(request: Request, body: RequestEmail, background_tasks: 
         background_tasks.add_task(send_email, user.email, user.username, request.base_url)
     return {"message": "Check your email for confirmation."}
 
-
+#
 @router.get('/confirmed_email/{token}')
-@limiter.limit("1/minute")
+@limiter.limit("10/minute")
 async def confirmed_email(request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
-    logger.critical(token)
-    logger.critical("token")
     """
     Confirms the user's email using the verification token.
 
@@ -204,9 +202,7 @@ async def confirmed_email(request: Request, token: str, db: Session = Depends(ge
     """
     
     email = await auth_service.get_email_from_token(token)
-    logger.critical(email)
     user = await repository_users.get_user_by_email(email, db)
-    logger.critical(user)
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error")
     if user.confirmed:

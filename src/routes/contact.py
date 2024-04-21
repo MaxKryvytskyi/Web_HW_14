@@ -9,6 +9,7 @@ from src.repository import contact as repository_contact
 from src.services.auth import auth_service
 from src.services.limiter import limiter
 from src.database.models import Contact
+from src.services.logger import logger
 
 router = APIRouter(prefix='/contacts', tags=['contacts'])
 

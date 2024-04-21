@@ -129,7 +129,9 @@ def test_refresh_token(client, user, session):
     assert data["refresh_token"] == old_refresh_t
     assert data["token_type"] == 'bearer'
 
-def test_reset_password(client, user, session):
+def test_reset_password(client, user, session, monkeypatch):
+    mock_send_resets_password = MagicMock(return_value={"message": "Email has been sent successfully!"})
+    monkeypatch.setattr("src.routes.auth.send_resets_password", mock_send_resets_password)
     users = session.query(User).filter(User.email==user["email"]).first()
     response = client.post(
         "/api/auth/reset_password",
@@ -183,7 +185,9 @@ def test_reset_password_token_incorrect_token(client, user):
     data = response.json()
     assert data["detail"] == "Invalid token for email verification"
 
-def test_request_email(client, user):
+def test_request_email(client, user, monkeypatch):
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
     response = client.post(
         "/api/auth/request_email",
         json={"email": user["email"]})
@@ -199,7 +203,9 @@ def test_request_email_incorrect_email(client):
     data = response.json()
     assert data["detail"] == "User is emails, was not found."
 
-def test_request_email_confirmed_false(client, user, session):
+def test_request_email_confirmed_false(client, user, session, monkeypatch):
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
     users = session.query(User).filter(User.email==user["email"]).first()
     users.confirmed = False
     session.commit()
@@ -210,35 +216,32 @@ def test_request_email_confirmed_false(client, user, session):
     data = response.json()
     assert data["message"] == "Check your email for confirmation."
 
-def test_confirmed_email(client, user, session):
+def test_confirmed_email(client, user):
     token_verification = auth_service.create_email_token({"sub": user["email"]})
     response = client.get(
         f"/api/auth/confirmed_email/{token_verification}")
     logger.critical(response)
+    assert response.status_code == 200, "OK"
+    data = response.json()
+    logger.critical(data)
+    assert data["message"] == "Email confirmed"
 
-    
-# @router.get('/confirmed_email/{token}')
-# @limiter.limit("1/minute")
-# async def confirmed_email(request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
-#     logger.critical(token)
-#     logger.critical("token")
-#     """
-#     Confirms the user's email using the verification token.
+def test_confirmed_email_confirmed_false(client, user, session):
+    token_verification = auth_service.create_email_token({"sub": user["email"]})
+    users = session.query(User).filter(User.email==user["email"]).first()
+    users.confirmed = True
+    session.commit()
+    response = client.get(
+        f"/api/auth/confirmed_email/{token_verification}")
+    assert response.status_code == 200, "OK"
+    data = response.json()
+    assert data["message"] == "Your email is already confirmed"
 
-#     Args:
-#         request (Request): The request object.
-#         token (str): The verification token.
-#         db (Session): The database session. Defaults to Depends(get_db).
+def test_confirmed_email(client):
+    token_verification = auth_service.create_email_token({"sub": "deadpool1@example.com"})
+    response = client.get(
+        f"/api/auth/confirmed_email/{token_verification}")
+    assert response.status_code == 400, "Bad Request"
+    data = response.json()
+    assert data["detail"] == "Verification error"
 
-#     Returns:
-#         Dict, HTTPException: A dictionary with a confirmation message if successful,
-#         or an HTTPException with a status code and detail message if there's a verification error.
-#     """
-#     email = await auth_service.get_email_from_token(token)
-#     user = await repository_users.get_user_by_email(email, db)
-#     if user is None:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error")
-#     if user.confirmed:
-#         return {"message": "Your email is already confirmed"}
-#     await repository_users.confirmed_email(email, db)
-#     return {"message": "Email confirmed"}

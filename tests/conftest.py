@@ -54,16 +54,10 @@ def user():
 
 @pytest.fixture()
 def token(client, user, session, monkeypatch):
-    mock_send_email = MagicMock()
-    monkeypatch.setattr("src.services.email.send_email", mock_send_email)
-    mock_send_resets_password = MagicMock(return_value={"message": "Email has been sent successfully!"})
-    mock_send_resets_password.setattr("src.services.email.send_resets_password", mock_send_resets_password)
     mock_redis = MagicMock(return_value=None)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_get", mock_redis)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_set", mock_redis)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_expire", mock_redis)
-    
-
 
     client.post("/api/auth/signup", json=user)
     current_user: User = session.query(User).filter(User.email == user.get('email')).first()
