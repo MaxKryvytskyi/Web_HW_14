@@ -74,7 +74,7 @@ async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), d
     await repository_users.update_token(user, refresh_token, db)
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
-
+#
 @router.get('/refresh_token',  response_model=TokenModel)
 @limiter.limit("10/minute")
 async def refresh_token(request: Request, credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
@@ -103,7 +103,7 @@ async def refresh_token(request: Request, credentials: HTTPAuthorizationCredenti
     await repository_users.update_token(user, refresh_token, db)
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
-
+#
 @router.post('/reset_password')
 @limiter.limit("10/minute")
 async def reset_password(request: Request, body: RequestEmail, background_tasks: BackgroundTasks, db: Session = Depends(get_db)): #  -> dict | HTTPException
@@ -131,6 +131,8 @@ async def reset_password(request: Request, body: RequestEmail, background_tasks:
 @router.post('/reset_password/{token}')
 @limiter.limit("10/minute")
 async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
+    logger.critical(body)
+    logger.critical(token)
     """
     Resets the user's password using the reset token.
 
@@ -145,6 +147,7 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
         or an HTTPException with a status code and detail message if there's a reset password error.
     """
     email = await auth_service.get_email_from_token(token)
+    logger.critical(email)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reset password error")

@@ -12,6 +12,9 @@ def token(client, user, session, monkeypatch):
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_set", mock_redis)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_expire", mock_redis)
     
+    mock_send_resets_password = MagicMock(return_value=None)
+    mock_send_resets_password.setattr("src.routes.auth.send_resets_password", mock_send_resets_password)
+
     client.post("/api/auth/signup", json=user)
     current_user: User = session.query(User).filter(User.email == user.get('email')).first()
     current_user.confirmed = True

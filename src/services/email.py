@@ -36,6 +36,7 @@ async def send_email(email: EmailStr, username: str, host: str):
         ConnectionErrors: If there is an error in establishing a connection for sending the email.
     """
     try:
+
         token_verification = auth_service.create_email_token({"sub": email})
         message = MessageSchema(
             subject="Confirm your email ",
