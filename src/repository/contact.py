@@ -161,6 +161,7 @@ async def update_data_contact(user_id: int, contact_id: int, body: ContactDataUp
 
 # test is ready
 async def get_birstdays(user_id: int, skip: int, limit: int, db: Session) -> list[ContactResponse] | list:
+    
     """
     Retrieves upcoming birthdays of contacts for a user.
 
@@ -174,6 +175,7 @@ async def get_birstdays(user_id: int, skip: int, limit: int, db: Session) -> lis
         List[ContactResponse], List: A list of upcoming birthdays of contacts for the user, 
         or an empty list if no birthdays are found.
     """
+    # postgres
     today = datetime.today()
     seven_days_later = today + timedelta(days=7)
     contact_birthdays = db.query(Contact).filter(and_(Contact.user_id==user_id,
@@ -195,6 +197,7 @@ async def get_birstdays(user_id: int, skip: int, limit: int, db: Session) -> lis
             user_id=contact.user_id)
         contact_list.append(contact_response)
     return contact_list
+    
 
 
 # test is ready

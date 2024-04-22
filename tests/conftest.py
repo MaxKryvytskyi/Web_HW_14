@@ -51,6 +51,9 @@ def client(session):
 def user():
     return {"username": "deadpool", "email": "deadpool@example.com", "password": "123456789", "new_password": "12345678910"}
 
+@pytest.fixture(scope="module")
+def user2():
+    return {"username": "deadpool2", "email": "deadpool2@example.com", "password": "123456789", "new_password": "12345678910"}
 
 @pytest.fixture()
 def token(client, user, session, monkeypatch):
@@ -58,6 +61,9 @@ def token(client, user, session, monkeypatch):
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_get", mock_redis)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_set", mock_redis)
     monkeypatch.setattr("src.services.client_redis.client_redis.redis_expire", mock_redis)
+
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
 
     client.post("/api/auth/signup", json=user)
     current_user: User = session.query(User).filter(User.email == user.get('email')).first()
@@ -69,3 +75,25 @@ def token(client, user, session, monkeypatch):
     )
     data = response.json()
     return data["access_token"]
+
+@pytest.fixture()
+def token2(client, user2, session, monkeypatch):
+    mock_redis = MagicMock(return_value=None)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_get", mock_redis)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_set", mock_redis)
+    monkeypatch.setattr("src.services.client_redis.client_redis.redis_expire", mock_redis)
+
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
+
+    client.post("/api/auth/signup", json=user2)
+    current_user: User = session.query(User).filter(User.email == user2.get('email')).first()
+    current_user.confirmed = True
+    session.commit()
+    response = client.post(
+        "/api/auth/login",
+        data={"username": user2.get('email'), "password": user2.get('password')},
+    )
+    data = response.json()
+    return data["access_token"]
+

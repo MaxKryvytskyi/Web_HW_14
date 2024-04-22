@@ -1,5 +1,5 @@
 from fastapi import Depends
-from sqlalchemy import select, and_ 
+from sqlalchemy import select 
 from sqlalchemy.orm import Session
 
 from src.database.db import get_db

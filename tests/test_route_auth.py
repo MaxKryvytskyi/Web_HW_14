@@ -7,10 +7,7 @@ from src.services.auth import auth_service
 def test_create_user(client, user, monkeypatch):
     mock_send_email = MagicMock()
     monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
-    response = client.post(
-        "/api/auth/signup",
-        json=user,
-    )
+    response = client.post("/api/auth/signup", json=user)
     assert response.status_code == 201, "Created"
     data = response.json()
     assert data["email"] == user.get("email")

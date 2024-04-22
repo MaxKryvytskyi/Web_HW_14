@@ -17,7 +17,7 @@ get_refresh_token = HTTPBearer()
 
 #
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def signup(request: Request, background_tasks: BackgroundTasks, body: UserSchema, db: Session = Depends(get_db)) -> User | HTTPException:
     """
     Registers a new user.
@@ -45,7 +45,7 @@ async def signup(request: Request, background_tasks: BackgroundTasks, body: User
 
 #
 @router.post("/login",  response_model=TokenModel, status_code=status.HTTP_200_OK)
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> dict | HTTPException: 
     """
     Logins in a user.
