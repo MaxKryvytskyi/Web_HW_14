@@ -10,17 +10,17 @@ Welcome to HW_14's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-HW_14 main
-==========
-.. automodule:: main
-  :members:
-  :undoc-members:
-  :show-inheritance:
+.. HW_14 main
+.. ==========
+.. .. automodule:: main
+..   :members:
+..   :undoc-members:
+..   :show-inheritance:
 
 
-HW_14 repository Contact
-========================
-.. automodule:: src.repository.contact
+HW_14 repository Contacts
+=========================
+.. automodule:: src.repository.contacts
   :members:
   :undoc-members:
   :show-inheritance:
@@ -42,9 +42,9 @@ HW_14 routes Auth
   :show-inheritance:
 
 
-HW_14 routes Contact
-====================
-.. automodule:: src.routes.contact
+HW_14 routes Contacts
+=====================
+.. automodule:: src.routes.contacts
   :members:
   :undoc-members:
   :show-inheritance:
@@ -66,7 +66,7 @@ HW_14 service Auth
   :show-inheritance:
 
 
-HW_14 service Client_redis
+HW_14 service Client redis
 ==========================
 .. automodule:: src.services.client_redis
   :members:

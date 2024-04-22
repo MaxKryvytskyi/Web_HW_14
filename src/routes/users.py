@@ -6,7 +6,6 @@ from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.schemas.user import UserDb
 from src.services.limiter import limiter
-from src.services.logger import logger
 
 router = APIRouter(prefix="/users", tags=["users"])
 

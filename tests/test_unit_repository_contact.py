@@ -1,14 +1,12 @@
 import unittest
 import fastapi
-import redis
-from sqlalchemy.orm import Query
 from datetime import datetime
 from unittest.mock import MagicMock
 from sqlalchemy.orm import Session
 from src.database.models import Contact, User
 from src.schemas.contact import ContactUpdate, ContactDataUpdate, ContactSchema
 from src.services.client_redis import client_redis 
-from repository.contacts import (
+from src.repository.contacts import (
                                     create_contact, 
                                     remove_contact,
                                     update_contact,

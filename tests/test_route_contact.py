@@ -74,14 +74,14 @@ def test_create_contact(client, session, user, token):
 
 
 def test_get_birstdays_no_contacts(client, token2, monkeypatch):
-    monkeypatch.setattr("src.routes.contact.repository_contact.get_birstdays", mock_get_birstdays)
+    monkeypatch.setattr("src.routes.contacts.repository_contact.get_birstdays", mock_get_birstdays)
     response = client.get("/api/contacts/birstdays", headers={"Authorization": f"Bearer {token2}"})
     assert response.status_code == 404, "Not found"
     data = response.json() 
     assert data["detail"] == "Birstday not found"
 
 def test_get_birstdays(client, token, monkeypatch):
-    monkeypatch.setattr("src.routes.contact.repository_contact.get_birstdays", mock_get_birstdays)
+    monkeypatch.setattr("src.routes.contacts.repository_contact.get_birstdays", mock_get_birstdays)
     response = client.get("/api/contacts/birstdays", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200, "OK"
     data = response.json()

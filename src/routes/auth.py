@@ -10,7 +10,6 @@ from src.services.auth import auth_service
 from src.services.limiter import limiter
 from src.services.email import send_email, send_resets_password
 from src.database.models import User
-from src.services.logger import logger
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 get_refresh_token = HTTPBearer()
