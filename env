@@ -8,24 +8,13 @@ MAIL_SERVER=smtp.meta.ua
 MAIL_FROM_NAME=Example email
 
 # database для FastAPI
-POSTGRES_DB_F=
-POSTGRES_USER_F=
-POSTGRES_PASSWORD_F=
-POSTGRES_HOST_F=localhost
-POSTGRES_PORT_F=5432
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
 
-SQLALCHEMY_DATABASE_URL_F=postgresql+psycopg2://:@localhost:5432/
-
-# database для Django
-POSTGRES_DB_D=
-POSTGRES_USER_D=
-POSTGRES_PASSWORD_D=
-POSTGRES_HOST_D=localhost
-POSTGRES_PORT_D=5433
-
-SQLALCHEMY_DATABASE_URL_D=postgresql+psycopg2://:@localhost:5433/
-
-
+SQLALCHEMY_DATABASE_URL=postgresql+psycopg2://:@localhost:5432/
 
 # Шифрування tokens
 SECRET_KEY=secret_key
