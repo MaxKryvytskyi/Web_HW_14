@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.database.models import Contact, User
 from src.schemas.contact import ContactUpdate, ContactDataUpdate, ContactSchema
 from src.services.client_redis import client_redis 
-from src.repository.contact import (
+from repository.contacts import (
                                     create_contact, 
                                     remove_contact,
                                     update_contact,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "web-hw-14"
-version = "0.1.0"
+version = "1.0.0"
 package-mode = false
 description = ""
 authors = ["Max <maxkryvytskyiwork@gmail.com>"]
@@ -29,9 +29,10 @@ slowapi = "^0.1.9"
 cloudinary = "^1.39.1"
 pytest = "^8.1.1"
 pytest-mock = "^3.14.0"
+sphinx = "^7.3.7"
 
 [tool.poetry.group.dev.dependencies]
-sphinx = "^7.2.6"
+sphinx = "^7.3.7"
 
 
 [tool.poetry.group.test.dependencies]
