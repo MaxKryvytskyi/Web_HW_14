@@ -217,10 +217,8 @@ def test_confirmed_email(client, user):
     token_verification = auth_service.create_email_token({"sub": user["email"]})
     response = client.get(
         f"/api/auth/confirmed_email/{token_verification}")
-    logger.critical(response)
     assert response.status_code == 200, "OK"
     data = response.json()
-    logger.critical(data)
     assert data["message"] == "Email confirmed"
 
 def test_confirmed_email_confirmed_false(client, user, session):

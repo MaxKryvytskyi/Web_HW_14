@@ -41,7 +41,7 @@ sphinx = "^7.3.7"
 httpx = "^0.27.0"
 
 [tool.pytest.ini_options]
-addopts = "--cov=<project-name> --cov-report html"
+addopts = "--cov=<web-hw-14> --cov-report html"
 pythonpath = ["."]
 
 [build-system]
