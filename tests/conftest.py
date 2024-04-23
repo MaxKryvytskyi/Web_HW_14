@@ -97,3 +97,8 @@ def token2(client, user2, session, monkeypatch):
     data = response.json()
     return data["access_token"]
 
+
+
+
+# python -m pytest --cov .
+
