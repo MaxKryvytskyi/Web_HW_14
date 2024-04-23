@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path 
 from decouple import config
 from pydantic import EmailStr
 from fastapi import HTTPException
@@ -6,7 +6,6 @@ from fastapi_mail.errors import ConnectionErrors
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 
 from src.services.auth import auth_service
-from src.services.logger import logger
  
 conf = ConnectionConfig(
     MAIL_USERNAME=config("MAIL_USERNAME"),

@@ -14,7 +14,6 @@ from src.database.db import get_db
 from src.database.models import User
 from src.repository import users as repository_users
 from src.services.client_redis import client_redis
-from src.services.logger import logger
 
 
 class Auth:

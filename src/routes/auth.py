@@ -10,9 +10,23 @@ from src.services.auth import auth_service
 from src.services.limiter import limiter
 from src.services.email import send_email, send_resets_password
 from src.database.models import User
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 get_refresh_token = HTTPBearer()
+templates = Jinja2Templates(directory='templates/quotes')
+
+
+
+@router.get("/base")
+@limiter.limit("100/minute")
+def base(request: Request, db: Session = Depends(get_db)):
+    user = {"is_authenticated": False}
+    return templates.TemplateResponse("base.html", {"request": request, "user": user})
+
+
+
+
 
 #
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -75,7 +89,7 @@ async def login(request: Request, body: OAuth2PasswordRequestForm = Depends(), d
 
 #
 @router.get('/refresh_token',  response_model=TokenModel)
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def refresh_token(request: Request, credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
                         db: Session = Depends(get_db)) -> dict | HTTPException:
     """
@@ -104,7 +118,7 @@ async def refresh_token(request: Request, credentials: HTTPAuthorizationCredenti
 
 #
 @router.post('/reset_password')
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def reset_password(request: Request, body: RequestEmail, background_tasks: BackgroundTasks, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Initiates the password reset process.
@@ -128,7 +142,7 @@ async def reset_password(request: Request, body: RequestEmail, background_tasks:
 
 #
 @router.post('/reset_password/{token}')
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def reset_password_token(body: RequestUserNewPassword, request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Resets the user's password using the reset token.
@@ -154,7 +168,7 @@ async def reset_password_token(body: RequestUserNewPassword, request: Request, t
 
 #
 @router.post('/request_email')
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def request_email(request: Request, body: RequestEmail, background_tasks: BackgroundTasks,
                         db: Session = Depends(get_db)): #  -> dict
     """
@@ -185,7 +199,7 @@ async def request_email(request: Request, body: RequestEmail, background_tasks: 
 
 #
 @router.get('/confirmed_email/{token}')
-@limiter.limit("10/minute")
+@limiter.limit("100/minute")
 async def confirmed_email(request: Request, token: str, db: Session = Depends(get_db)): #  -> dict | HTTPException
     """
     Confirms the user's email using the verification token.
@@ -208,7 +222,4 @@ async def confirmed_email(request: Request, token: str, db: Session = Depends(ge
         return {"message": "Your email is already confirmed"}
     await repository_users.confirmed_email(email, db)
     return {"message": "Email confirmed"}
-
-
-
 
