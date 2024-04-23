@@ -90,5 +90,5 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
         result = await remove_user(email="max.lol@ex.ua", db=self.session)
         self.assertEqual(result.email, self.user_db.email)
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()

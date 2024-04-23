@@ -241,5 +241,5 @@ class TestContact(unittest.IsolatedAsyncioTestCase):
         result = await search_contacts(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone=phone, birthday=birthday, db=self.session)   
         self.assertEqual(len(result), len(contacts))
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()

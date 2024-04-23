@@ -232,7 +232,7 @@ def test_confirmed_email_confirmed_false(client, user, session):
     data = response.json()
     assert data["message"] == "Your email is already confirmed"
 
-def test_confirmed_email(client):
+def test_confirmed_incorrect_email(client):
     token_verification = auth_service.create_email_token({"sub": "deadpool1@example.com"})
     response = client.get(
         f"/api/auth/confirmed_email/{token_verification}")
