@@ -18,16 +18,6 @@ templates = Jinja2Templates(directory='templates/quotes')
 
 
 
-@router.get("/base")
-@limiter.limit("100/minute")
-def base(request: Request, db: Session = Depends(get_db)):
-    user = {"is_authenticated": False}
-    return templates.TemplateResponse("base.html", {"request": request, "user": user})
-
-
-
-
-
 #
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("100/minute")
