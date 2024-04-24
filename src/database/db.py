@@ -1,21 +1,29 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import contextlib
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from decouple import config
 
-engine = create_engine(config('SQLALCHEMY_DATABASE_URL'))
+class DatabaseSessionManager:
+    def __init__(self, url):
+        self._engine: AsyncEngine | None = create_async_engine(url)
+        self._session_maker: async_sessionmaker = async_sessionmaker(autoflush=False, autocommit=False, bind=self._engine)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    @contextlib.asynccontextmanager
+    async def session(self):
+        if self._session_maker is None:
+            raise Exception("Session is not initialized")
+        session = self._session_maker()
+        try:
+            yield session
+        except Exception as err:
+            print(err)
+            await session.rollback()
+        finally:
+            await session.close()
 
-# Dependency
-def get_db():
-    """
-    Generates a database session.
+print(config("SQLALCHEMY_DATABASE_URL"))
+sessionmanager = DatabaseSessionManager(url=config("SQLALCHEMY_DATABASE_URL"))
 
-    Yields:
-        Session: A database session.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
+async def get_db():
+    async with sessionmanager.session() as session:
+        yield session

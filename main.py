@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, APIRouter, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.db import get_db
 from src.routes import contacts
 from src.routes import auth 
@@ -46,7 +46,7 @@ server.add_middleware(
 
 @server.get("/")
 @limiter.limit("100/minute")
-async def home(request: Request, db: Session = Depends(get_db)): #, current_user: User = Depends(auth_service.get_current_user)
+async def home(request: Request, db: AsyncSession = Depends(get_db)): #, current_user: User = Depends(auth_service.get_current_user)
     """
     The home function is the default route for our application.
     It returns a TemplateResponse object, which renders the home.html template
